@@ -10,6 +10,15 @@ RUN apt-get install -y \
     dstat screen htop \
     curl
 
+# set some configs (for running large simulations)
+RUN echo "* soft nofile 25000" >> /etc/security/limits.conf && \
+    echo "* hard nofile 25000" >> /etc/security/limits.conf && \
+    echo "vm.max_map_count = 262144" >> /etc/sysctl.conf && \
+    echo "fs.file-max = 5000000" >> /etc/sysctl.conf
+
+# set path
+RUN echo "export PATH=${PATH}:/root/.shadow/bin" >> ~/.bashrc
+
 # download shadow
 WORKDIR /root
 RUN mkdir shadow && \
@@ -19,11 +28,4 @@ RUN mkdir shadow && \
 # install shadow
 RUN cd shadow && \
     ./setup build --clean --debug --test && \
-    ./setup install && \
-    echo "export PATH=${PATH}:/root/.shadow/bin" >> ~/.bashrc
-
-# set some configs (for running large simulations)
-RUN echo "* soft nofile 25000" >> /etc/security/limits.conf && \
-    echo "* hard nofile 25000" >> /etc/security/limits.conf && \
-    echo "vm.max_map_count = 262144" >> /etc/sysctl.conf && \
-    echo "fs.file-max = 5000000" >> /etc/sysctl.conf
+    ./setup install
